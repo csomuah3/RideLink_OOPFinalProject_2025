@@ -29,6 +29,13 @@ public class RideLinkGUI extends JFrame {
     // constructor - this runs when we create the GUI
     public RideLinkGUI() {
         
+        // force cross-platform look and feel so button colors work on Mac
+        try {
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        } catch (Exception ex) {
+            // if it fails just use default
+        }
+        
         // create the backend system
         system = new RideLinkMatcher();
         
@@ -1281,6 +1288,7 @@ public class RideLinkGUI extends JFrame {
         
         
         cancelButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 dialog.dispose();
             }
@@ -1390,6 +1398,7 @@ public class RideLinkGUI extends JFrame {
             
             
             joinButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     
                     // get selected index
@@ -1528,6 +1537,7 @@ public class RideLinkGUI extends JFrame {
             
             
             completeButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     
                     int selected = tripList.getSelectedIndex();
@@ -1672,6 +1682,7 @@ public class RideLinkGUI extends JFrame {
             
             
             joinButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     
                     int selected = tripList.getSelectedIndex();
@@ -1946,6 +1957,7 @@ public class RideLinkGUI extends JFrame {
         
         // add action to register button
         registerButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 
                 try {
@@ -2011,6 +2023,7 @@ public class RideLinkGUI extends JFrame {
         
         
         cancelButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 dialog.dispose();
             }
@@ -2147,6 +2160,7 @@ public class RideLinkGUI extends JFrame {
     public static void main(String[] args) {
         
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new RideLinkGUI();
             }

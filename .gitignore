@@ -1,0 +1,19 @@
+# Compiled class files
+*.class
+
+# CSV data files (user-generated data)
+users.csv
+trips.csv
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+

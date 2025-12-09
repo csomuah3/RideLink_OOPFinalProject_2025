@@ -46,10 +46,10 @@ public class Driver extends User {
             "ID: %s | Name: %s | Age: %d | Gender: %s\n" +
             "Contact: %s\n" +
             "Car: %s (%s) | Capacity: %d passengers\n" +
-            "Experience: %d years | Rating: %.1f/5.0 (%d ratings)",
+            "Experience: %d years",
             getId(), getName(), getAge(), getGender(), getContactInfo(),
             carModel, carPlateNumber, carCapacity,
-            yearsExperience, getRating(), getRatingCount()
+            yearsExperience
         );
     }
 }

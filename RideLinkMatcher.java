@@ -168,20 +168,20 @@ public class RideLinkMatcher {
     public void saveUsersToCSV() {
         try {
             PrintWriter writer = new PrintWriter(new FileWriter("users.csv"));
-            writer.println("ID,Type,Name,ContactInfo,Age,Gender,Rating,RatingCount,CarModel,CarPlate,CarCapacity,YearsExp,PaymentMethod,MoneySaved,DistanceCommuted");
+            writer.println("ID,Type,Name,ContactInfo,Age,Gender,CarModel,CarPlate,CarCapacity,YearsExp,PaymentMethod,MoneySaved,DistanceCommuted");
             
             for (User user : allUsers) {
                 if (user instanceof Driver) {
                     Driver d = (Driver) user;
-                    writer.printf("%s,Driver,%s,%s,%d,%s,%.1f,%d,%s,%s,%d,%d,,,\n",
+                    writer.printf("%s,Driver,%s,%s,%d,%s,%s,%s,%d,%d,,,\n",
                         d.getId(), d.getName(), d.getContactInfo(), d.getAge(), d.getGender(),
-                        d.getRating(), d.getRatingCount(), d.getCarModel(), d.getCarPlateNumber(),
+                        d.getCarModel(), d.getCarPlateNumber(),
                         d.getCarCapacity(), d.getYearsExperience());
                 } else if (user instanceof Rider) {
                     Rider r = (Rider) user;
-                    writer.printf("%s,Rider,%s,%s,%d,%s,%.1f,%d,,,,,,%s,%.2f,%.2f\n",
+                    writer.printf("%s,Rider,%s,%s,%d,%s,,,,,,%s,%.2f,%.2f\n",
                         r.getId(), r.getName(), r.getContactInfo(), r.getAge(), r.getGender(),
-                        r.getRating(), r.getRatingCount(), r.getPreferredPaymentMethod(),
+                        r.getPreferredPaymentMethod(),
                         r.getTotalMoneySaved(), r.getTotalDistanceCommuted());
                 }
             }
@@ -209,19 +209,19 @@ public class RideLinkMatcher {
                 String gender = data[5];
                 
                 if (type.equals("Driver")) {
-                    String carModel = data[8];
-                    String carPlate = data[9];
-                    int carCapacity = Integer.parseInt(data[10]);
-                    int yearsExp = Integer.parseInt(data[11]);
+                    String carModel = data[6];
+                    String carPlate = data[7];
+                    int carCapacity = Integer.parseInt(data[8]);
+                    int yearsExp = Integer.parseInt(data[9]);
                     
                     Driver driver = new Driver(id, name, contact, age, gender, 
                                              carModel, carPlate, carCapacity, yearsExp);
                     allUsers.add(driver);
                 } else if (type.equals("Rider")) {
-                    String paymentMethod = data[13];
+                    String paymentMethod = data[10];
                     Rider rider = new Rider(id, name, contact, age, gender, paymentMethod);
-                    rider.updateSavings(Double.parseDouble(data[14]));
-                    rider.addToDistanceCommuted(Double.parseDouble(data[15]));
+                    rider.updateSavings(Double.parseDouble(data[11]));
+                    rider.addToDistanceCommuted(Double.parseDouble(data[12]));
                     allUsers.add(rider);
                 }
             }

@@ -133,8 +133,8 @@ public class Trip {
         sb.append(String.format("  Route: %s -> %s (%.2f km)\n",
                                origin.getName(), destination.getName(), tripDistanceKm));
         sb.append(String.format("  Departure: %s\n", formattedTime));
-        sb.append(String.format("  Driver: %s (%s) - Rating: %.1f/5.0\n",
-                               driver.getName(), driver.getCarModel(), driver.getRating()));
+        sb.append(String.format("  Driver: %s (%s)\n",
+                               driver.getName(), driver.getCarModel()));
         sb.append(String.format("  Seats: %d/%d available\n",
                                (driver.getCarCapacity() - 1 - passengerCount),
                                (driver.getCarCapacity() - 1)));

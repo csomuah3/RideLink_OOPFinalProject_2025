@@ -83,6 +83,50 @@ public class RideLinkGUI extends JFrame {
     
     
     
+    // adds placeholder functionality to a text field
+    private void addPlaceholder(JTextField textField, String placeholder) {
+        textField.setText(placeholder);
+        textField.setForeground(Color.GRAY);
+        
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textField.getText().equals(placeholder)) {
+                    textField.setText("");
+                    textField.setForeground(Color.BLACK);
+                }
+            }
+            
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textField.getText().trim().isEmpty()) {
+                    textField.setText(placeholder);
+                    textField.setForeground(Color.GRAY);
+                }
+            }
+        });
+        
+        // store the placeholder text as a client property for later retrieval
+        textField.putClientProperty("placeholder", placeholder);
+    }
+    
+    
+    
+    // gets the actual text from a field with placeholder (returns empty string if still showing placeholder)
+    private String getFieldText(JTextField textField) {
+        String text = textField.getText().trim();
+        String placeholder = (String) textField.getClientProperty("placeholder");
+        
+        // if text is gray or equals placeholder, return empty string
+        if (textField.getForeground().equals(Color.GRAY) || text.equals(placeholder)) {
+            return "";
+        }
+        
+        return text;
+    }
+    
+    
+    
     // shows the login screen where users enter their ID
     private void showLoginScreen() {
         
@@ -491,8 +535,8 @@ public class RideLinkGUI extends JFrame {
         
         
         // create stats label
-        String statsText = String.format("Rating: %.1f/5.0 | Experience: %d years", 
-            driver.getRating(), driver.getYearsExperience());
+        String statsText = String.format("Experience: %d years", 
+            driver.getYearsExperience());
         JLabel statsLabel = new JLabel(statsText);
         statsLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         statsLabel.setForeground(LIGHT_BLUE);
@@ -689,8 +733,8 @@ public class RideLinkGUI extends JFrame {
         
         
         // stats label
-        String statsText = String.format("Rating: %.1f/5.0 | Money Saved: GHS %.2f", 
-            rider.getRating(), rider.getTotalMoneySaved());
+        String statsText = String.format("Money Saved: GHS %.2f", 
+            rider.getTotalMoneySaved());
         JLabel statsLabel = new JLabel(statsText);
         statsLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         statsLabel.setForeground(LIGHT_BLUE);
@@ -883,8 +927,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        originNameField.setText("Origin Name (e.g., Ashesi University)");
-        originNameField.setForeground(Color.GRAY);
+        addPlaceholder(originNameField, "Origin Name (e.g., Ashesi University)");
         
         
         // origin area field
@@ -895,8 +938,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        originAreaField.setText("Origin Area (e.g., Berekuso)");
-        originAreaField.setForeground(Color.GRAY);
+        addPlaceholder(originAreaField, "Origin Area (e.g., Berekuso)");
         
         
         // destination name field
@@ -907,8 +949,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        destNameField.setText("Destination Name (e.g., Accra Mall)");
-        destNameField.setForeground(Color.GRAY);
+        addPlaceholder(destNameField, "Destination Name (e.g., Accra Mall)");
         
         
         // destination area field
@@ -919,8 +960,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        destAreaField.setText("Destination Area (e.g., Tetteh Quarshie)");
-        destAreaField.setForeground(Color.GRAY);
+        addPlaceholder(destAreaField, "Destination Area (e.g., Tetteh Quarshie)");
         
         
         // time field
@@ -931,8 +971,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        timeField.setText("Departure Time (HH:mm, e.g., 09:00)");
-        timeField.setForeground(Color.GRAY);
+        addPlaceholder(timeField, "Departure Time (HH:mm, e.g., 09:00)");
         
         
         
@@ -975,21 +1014,34 @@ public class RideLinkGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 
                 try {
+                    // get field values
+                    String originName = getFieldText(originNameField);
+                    String originArea = getFieldText(originAreaField);
+                    String destName = getFieldText(destNameField);
+                    String destArea = getFieldText(destAreaField);
+                    String timeStr = getFieldText(timeField);
+                    
+                    // validate all fields are filled
+                    if (originName.isEmpty() || originArea.isEmpty() || 
+                        destName.isEmpty() || destArea.isEmpty() || timeStr.isEmpty()) {
+                        
+                        JOptionPane.showMessageDialog(
+                            dialog, 
+                            "Please fill in all fields!", 
+                            "Error", 
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                        return;
+                    }
+                    
                     // create origin location
-                    Location origin = new Location(
-                        originNameField.getText(), 
-                        originAreaField.getText()
-                    );
+                    Location origin = new Location(originName, originArea);
                     
                     // create destination location
-                    Location destination = new Location(
-                        destNameField.getText(), 
-                        destAreaField.getText()
-                    );
+                    Location destination = new Location(destName, destArea);
                     
                     
                     // parse the time
-                    String timeStr = timeField.getText().trim();
                     String[] timeParts = timeStr.split(":");
                     
                     // create departure time for tomorrow
@@ -1157,8 +1209,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        originNameField.setText("Origin Name");
-        originNameField.setForeground(Color.GRAY);
+        addPlaceholder(originNameField, "Origin Name");
         
         
         JTextField originAreaField = new JTextField();
@@ -1168,8 +1219,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        originAreaField.setText("Origin Area");
-        originAreaField.setForeground(Color.GRAY);
+        addPlaceholder(originAreaField, "Origin Area");
         
         
         JTextField destNameField = new JTextField();
@@ -1179,8 +1229,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        destNameField.setText("Destination Name");
-        destNameField.setForeground(Color.GRAY);
+        addPlaceholder(destNameField, "Destination Name");
         
         
         JTextField destAreaField = new JTextField();
@@ -1190,8 +1239,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        destAreaField.setText("Destination Area");
-        destAreaField.setForeground(Color.GRAY);
+        addPlaceholder(destAreaField, "Destination Area");
         
         
         JTextField timeField = new JTextField();
@@ -1201,8 +1249,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        timeField.setText("Desired Time (HH:mm, e.g., 09:00)");
-        timeField.setForeground(Color.GRAY);
+        addPlaceholder(timeField, "Desired Time (HH:mm, e.g., 09:00)");
         
         
         
@@ -1243,20 +1290,33 @@ public class RideLinkGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 
                 try {
-                    // create locations
-                    Location origin = new Location(
-                        originNameField.getText(), 
-                        originAreaField.getText()
-                    );
+                    // get field values
+                    String originName = getFieldText(originNameField);
+                    String originArea = getFieldText(originAreaField);
+                    String destName = getFieldText(destNameField);
+                    String destArea = getFieldText(destAreaField);
+                    String timeStr = getFieldText(timeField);
                     
-                    Location destination = new Location(
-                        destNameField.getText(), 
-                        destAreaField.getText()
-                    );
+                    // validate all fields are filled
+                    if (originName.isEmpty() || originArea.isEmpty() || 
+                        destName.isEmpty() || destArea.isEmpty() || timeStr.isEmpty()) {
+                        
+                        JOptionPane.showMessageDialog(
+                            dialog, 
+                            "Please fill in all fields!", 
+                            "Error", 
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                        return;
+                    }
+                    
+                    // create locations
+                    Location origin = new Location(originName, originArea);
+                    
+                    Location destination = new Location(destName, destArea);
                     
                     
                     // parse time
-                    String timeStr = timeField.getText().trim();
                     String[] timeParts = timeStr.split(":");
                     
                     LocalDateTime desiredTime = LocalDateTime.now()
@@ -1815,8 +1875,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        nameField.setText("Full Name");
-        nameField.setForeground(Color.GRAY);
+        addPlaceholder(nameField, "Full Name");
         
         
         JTextField contactField = new JTextField();
@@ -1826,8 +1885,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        contactField.setText("Contact Info");
-        contactField.setForeground(Color.GRAY);
+        addPlaceholder(contactField, "Contact Info");
         
         
         JTextField ageField = new JTextField();
@@ -1837,8 +1895,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        ageField.setText("Age");
-        ageField.setForeground(Color.GRAY);
+        addPlaceholder(ageField, "Age");
         
         
         JTextField genderField = new JTextField();
@@ -1848,8 +1905,7 @@ public class RideLinkGUI extends JFrame {
             BorderFactory.createLineBorder(MID_BLUE, 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        genderField.setText("Gender");
-        genderField.setForeground(Color.GRAY);
+        addPlaceholder(genderField, "Gender");
         
         
         
@@ -1872,8 +1928,7 @@ public class RideLinkGUI extends JFrame {
                 BorderFactory.createLineBorder(MID_BLUE, 1),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
             ));
-            carModelField.setText("Car Model");
-            carModelField.setForeground(Color.GRAY);
+            addPlaceholder(carModelField, "Car Model");
             
             
             carPlateField = new JTextField();
@@ -1883,8 +1938,7 @@ public class RideLinkGUI extends JFrame {
                 BorderFactory.createLineBorder(MID_BLUE, 1),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
             ));
-            carPlateField.setText("License Plate");
-            carPlateField.setForeground(Color.GRAY);
+            addPlaceholder(carPlateField, "License Plate");
             
             
             capacityField = new JTextField();
@@ -1894,8 +1948,7 @@ public class RideLinkGUI extends JFrame {
                 BorderFactory.createLineBorder(MID_BLUE, 1),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
             ));
-            capacityField.setText("Car Capacity");
-            capacityField.setForeground(Color.GRAY);
+            addPlaceholder(capacityField, "Car Capacity");
             
             
             experienceField = new JTextField();
@@ -1905,8 +1958,7 @@ public class RideLinkGUI extends JFrame {
                 BorderFactory.createLineBorder(MID_BLUE, 1),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
             ));
-            experienceField.setText("Years of Experience");
-            experienceField.setForeground(Color.GRAY);
+            addPlaceholder(experienceField, "Years of Experience");
             
             
         } else {
@@ -1918,8 +1970,7 @@ public class RideLinkGUI extends JFrame {
                 BorderFactory.createLineBorder(MID_BLUE, 1),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
             ));
-            paymentField.setText("Payment Method");
-            paymentField.setForeground(Color.GRAY);
+            addPlaceholder(paymentField, "Payment Method");
         }
         
         
@@ -1961,6 +2012,23 @@ public class RideLinkGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 
                 try {
+                    // get common field values
+                    String name = getFieldText(nameField);
+                    String contact = getFieldText(contactField);
+                    String ageStr = getFieldText(ageField);
+                    String gender = getFieldText(genderField);
+                    
+                    // validate common fields
+                    if (name.isEmpty() || contact.isEmpty() || ageStr.isEmpty() || gender.isEmpty()) {
+                        JOptionPane.showMessageDialog(
+                            dialog, 
+                            "Please fill in all fields!", 
+                            "Error", 
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                        return;
+                    }
+                    
                     // generate new ID
                     String prefix = isDriver ? "DRV" : "RDR";
                     String id = prefix + String.format("%03d", system.getAllUsers().size() + 1);
@@ -1968,17 +2036,36 @@ public class RideLinkGUI extends JFrame {
                     
                     if (isDriver) {
                         
+                        // get driver-specific fields
+                        String carModel = getFieldText(finalCarModel);
+                        String carPlate = getFieldText(finalCarPlate);
+                        String capacityStr = getFieldText(finalCapacity);
+                        String experienceStr = getFieldText(finalExperience);
+                        
+                        // validate driver fields
+                        if (carModel.isEmpty() || carPlate.isEmpty() || 
+                            capacityStr.isEmpty() || experienceStr.isEmpty()) {
+                            
+                            JOptionPane.showMessageDialog(
+                                dialog, 
+                                "Please fill in all fields!", 
+                                "Error", 
+                                JOptionPane.ERROR_MESSAGE
+                            );
+                            return;
+                        }
+                        
                         // create new driver
                         Driver driver = new Driver(
                             id, 
-                            nameField.getText(), 
-                            contactField.getText(),
-                            Integer.parseInt(ageField.getText()), 
-                            genderField.getText(),
-                            finalCarModel.getText(), 
-                            finalCarPlate.getText(),
-                            Integer.parseInt(finalCapacity.getText()), 
-                            Integer.parseInt(finalExperience.getText())
+                            name, 
+                            contact,
+                            Integer.parseInt(ageStr), 
+                            gender,
+                            carModel, 
+                            carPlate,
+                            Integer.parseInt(capacityStr), 
+                            Integer.parseInt(experienceStr)
                         );
                         
                         system.registerUser(driver);
@@ -1986,14 +2073,28 @@ public class RideLinkGUI extends JFrame {
                         
                     } else {
                         
+                        // get rider-specific field
+                        String paymentMethod = getFieldText(finalPayment);
+                        
+                        // validate rider field
+                        if (paymentMethod.isEmpty()) {
+                            JOptionPane.showMessageDialog(
+                                dialog, 
+                                "Please fill in all fields!", 
+                                "Error", 
+                                JOptionPane.ERROR_MESSAGE
+                            );
+                            return;
+                        }
+                        
                         // create new rider
                         Rider rider = new Rider(
                             id, 
-                            nameField.getText(), 
-                            contactField.getText(),
-                            Integer.parseInt(ageField.getText()), 
-                            genderField.getText(), 
-                            finalPayment.getText()
+                            name, 
+                            contact,
+                            Integer.parseInt(ageStr), 
+                            gender, 
+                            paymentMethod
                         );
                         
                         system.registerUser(rider);
@@ -2010,6 +2111,13 @@ public class RideLinkGUI extends JFrame {
                     dialog.dispose();
                     
                     
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(
+                        dialog, 
+                        "Error: Please enter valid numbers for Age, Capacity, and Experience!", 
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE
+                    );
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(
                         dialog, 
